@@ -31,9 +31,33 @@ const App = ({ imageURL }: Props) => {
     const [loading, setLoading] = useState(false);
     const [city, setCity] = useState("Harare");
 
-    function getWeather() {
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHERMAP_API_KEY}&units=metric`;
-        const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${process.env.OPENWEATHERMAP_API_KEY}&units=metric`;
+    function getWeather(e: any) {
+        e.preventDefault();
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
+        const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
+        setLoading(true);
+        axios.get(url).then((response) => {
+            setWeather(response.data)
+            console.log(response.data)
+        }).catch((error) => {
+            if (error.response) {
+                console.log(error.response.data)
+            }
+        })
+        axios.get(forecastURL).then((response) => {
+            setForecastData(response.data)
+            console.log(response.data)
+        }).catch((error) => {
+            if (error.response) {
+                console.log(error.response.data)
+            }
+        })
+        setLoading(false);
+    }
+
+    function getInitialWeather() {
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
+        const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
         setLoading(true);
         axios.get(url).then((response) => {
             setWeather(response.data)
@@ -55,8 +79,8 @@ const App = ({ imageURL }: Props) => {
     }
 
     useEffect(() => {
-        getWeather()
-    });
+        getInitialWeather()
+    }, []);
 
     const date = new Date();
     let day = date.getDay().toString();
@@ -79,7 +103,7 @@ const App = ({ imageURL }: Props) => {
     }
     const temperature = [
         {
-            time: forecastData !== null && forecastData.list[0].dt_txt,
+            time: forecastData !== null && forecastData.list[0].dt_txt.split(" ").slice(1),
             temperature: forecastData !== null && forecastData.list[0].main.temp,
         },
         {
@@ -118,10 +142,34 @@ const App = ({ imageURL }: Props) => {
             time: forecastData !== null && forecastData.list[9].dt_txt,
             temperature: forecastData !== null && forecastData.list[9].main.temp,
         },
+        {
+            time: forecastData !== null && forecastData.list[10].dt_txt,
+            temperature: forecastData !== null && forecastData.list[10].main.temp,
+        },
+        {
+            time: forecastData !== null && forecastData.list[11].dt_txt,
+            temperature: forecastData !== null && forecastData.list[11].main.temp,
+        },
+        {
+            time: forecastData !== null && forecastData.list[12].dt_txt,
+            temperature: forecastData !== null && forecastData.list[12].main.temp,
+        },
+        {
+            time: forecastData !== null && forecastData.list[13].dt_txt,
+            temperature: forecastData !== null && forecastData.list[13].main.temp,
+        },
+        {
+            time: forecastData !== null && forecastData.list[14].dt_txt,
+            temperature: forecastData !== null && forecastData.list[14].main.temp,
+        },
+        {
+            time: forecastData !== null && forecastData.list[15].dt_txt,
+            temperature: forecastData !== null && forecastData.list[15].main.temp,
+        },
     ];
     const humidity = [
         {
-            time: forecastData !== null && forecastData.list[0].dt_txt,
+            time: forecastData !== null && forecastData.list[0].dt_txt.split(" ").slice(1),
             percentage: forecastData !== null && forecastData.list[0].main.humidity,
         },
         {
@@ -160,41 +208,52 @@ const App = ({ imageURL }: Props) => {
             time: forecastData !== null && forecastData.list[9].dt_txt,
             percentage: forecastData !== null && forecastData.list[9].main.humidity,
         },
+        {
+            time: forecastData !== null && forecastData.list[10].dt_txt,
+            percentage: forecastData !== null && forecastData.list[10].main.humidity,
+        },
+        {
+            time: forecastData !== null && forecastData.list[11].dt_txt,
+            percentage: forecastData !== null && forecastData.list[11].main.humidity,
+        },
+        {
+            time: forecastData !== null && forecastData.list[12].dt_txt,
+            percentage: forecastData !== null && forecastData.list[12].main.humidity,
+        },
+        {
+            time: forecastData !== null && forecastData.list[13].dt_txt,
+            percentage: forecastData !== null && forecastData.list[13].main.humidity,
+        },
+        {
+            time: forecastData !== null && forecastData.list[14].dt_txt,
+            percentage: forecastData !== null && forecastData.list[14].main.humidity,
+        },
+        {
+            time: forecastData !== null && forecastData.list[14].dt_txt,
+            percentage: forecastData !== null && forecastData.list[14].main.humidity,
+        },
     ];
     if (weather === null || forecastData === null) {
         return <div>Loading weather
-            <form className="mt-[5px] mb-[10px]">
-                <Label htmlFor="city name">Type in a city name.</Label>
-                <Input
-                    name="city"
-                    placeholder="Lisbon"
-                    className="w-[300px]"
-                    onChange={(e) => setCity(e.target.value)}
-                />
-                <Button
-                    type="submit"
-                    onClick={getWeather}
-                    variant="ghost"
-                >Search</Button>
-            </form>
-
         </div>
     }
     return (
         <div className="flex flex-col justify-center items-center w-screen text-white">
             <h1 className="text-center font-semibold text-3xl mt-[10px]">Nimbus Navigator</h1>
-            <form className="mt-[5px] mb-[10px]">
+            <form onSubmit={getWeather} className="mt-[5px] mb-[10px]">
                 <Label htmlFor="city name">Type in a city name.</Label>
                 <Input
+                    type="text"
                     name="city"
-                    placeholder="Lisbon"
+                    placeholder={weather.name}
                     className="w-[300px]"
                     onChange={(e) => setCity(e.target.value)}
                 />
                 <Button
                     type="submit"
                     onClick={getWeather}
-                    variant="ghost"
+                    variant="default"
+                    className="mt-[10px]"
                 >Search</Button>
             </form>
             <div className="w-screen h-content relative overflow-x-hidden pb-5">
@@ -249,7 +308,7 @@ const App = ({ imageURL }: Props) => {
                     </div>
                 </div>
                 <Tabs defaultValue="overview" className="w-full md:w-10/12 mx-auto bg-transparent backdrop-blur-sm mt-5">
-                    <TabsList className="mb-[20px] md:mb-[0] bg-transparent backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 text-neutral-200">
+                    <TabsList className="mb-[20px] md:mb-[0] bg-transparent backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4 text-neutral-200">
                         <TabsTrigger value="overview" className="text-xs md:text-lg">Overview</TabsTrigger>
                         <TabsTrigger value="temperature" className="text-xs md:text-lg">Temperature</TabsTrigger>
                         <TabsTrigger value="humidity" className="text-xs md:text-lg">Humidity</TabsTrigger>
@@ -280,11 +339,11 @@ const App = ({ imageURL }: Props) => {
                         >
                             <CarouselContent>
                                 {
-                                    forecastData.list.slice(0, 15).map((item: any, index: number) => (
-                                        <CarouselItem key={index} className="basis-1/4 sm:basis-1/5 md:basis-1/6">
+                                    forecastData.list.slice(0, 16).map((item: any, index: number) => (
+                                        <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/6">
                                             <div className="p-1">
                                                 <Card>
-                                                    <CardContent className="flex flex-col aspect-square items-center justify-center p-6 bg-transparent">
+                                                    <CardContent className="flex flex-col aspect-square items-center justify-center p-6 bg-transparent gap-y-3">
                                                         <h3>{item.wind.speed} m/s</h3>
                                                         {item.wind.deg === 360 || item.wind.deg <= 44 ? <ArrowUpIcon />
                                                             : item.wind.deg <= 89 ? <ArrowTopRightIcon />

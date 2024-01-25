@@ -13,15 +13,13 @@ const OverviewComponent = ({ data }: any) => {
         >
             <CarouselContent>
                 {
-                    //@ts-ignore  
-                    data.list.slice(0, 15).map((item: any, index: number) => (
-                        <CarouselItem key={index} className="basis-1/4 sm:basis-1/5 md:basis-1/6">
+                    data.list.slice(0, 16).map((item: any, index: number) => (
+                        <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/6">
                             <div className="p-1">
                                 <Card>
-                                    <CardContent className="flex flex-col aspect-square items-center justify-center p-6 bg-transparent">
+                                    <CardContent className="flex flex-col aspect-square items-center justify-center p-6">
                                         <h3>{index === 0 ? "Now" : item.dt_txt.split(" ").slice(1)}</h3>
                                         <Image
-                                            //@ts-ignore
                                             src={`https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`}
                                             alt={`icon depicting the weather conditions of (city name goes here)`}
                                             width={1024}
