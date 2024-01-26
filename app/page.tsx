@@ -24,6 +24,7 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getWeatherData, getForecastData } from "./features/weather/weatherSlice";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 
 
 export default function Home() {
@@ -32,7 +33,6 @@ export default function Home() {
 
   const [city, setCity] = useState("");
   const [imageURL, setImageURL] = useState("");
-
   const { weather, forecastData, loading } = useSelector((state: any) => state.weather);
 
   async function getImageUrl() {
@@ -44,8 +44,17 @@ export default function Home() {
   };
 
   useEffect(() => {
-    dispatch(getWeatherData("Harare"));
-    dispatch(getForecastData("Harare"));
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      console.log(latitude, longitude);
+      const resp = await axios(`http://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+      const currentCity = resp.data;
+      console.log(currentCity.address.city)
+      setCity(currentCity.address.city);
+      dispatch(getWeatherData(currentCity.address.city));
+      dispatch(getForecastData(currentCity.address.city));
+    })
+
     getImageUrl();
 
   }, []);
