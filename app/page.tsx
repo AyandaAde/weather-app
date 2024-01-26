@@ -47,7 +47,7 @@ export default function Home() {
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
       console.log(latitude, longitude);
-      const resp = await axios(`http://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+      const resp = await axios(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
       const currentLocation = resp.data;
       console.log(currentLocation);
       setCity(currentLocation.address.city);
