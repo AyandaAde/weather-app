@@ -26,7 +26,6 @@ import { getWeatherData, getForecastData } from "./features/weather/weatherSlice
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
-
 export default function Home() {
   const { setTheme } = useTheme()
   const dispatch = useDispatch();
