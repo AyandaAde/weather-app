@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LineChart } from "@tremor/react";
+import { LineChart, AreaChart } from "@tremor/react";
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Carousel,
@@ -330,12 +330,12 @@ export default function Home() {
           </TabsContent>
           <TabsContent value="temperature">
             <Card className="mx-auto w-[97%] md:w-full">
-              <LineChart
-                className="h-56 md:h-72 mt-4"
+              <AreaChart
+                className="h-72 mt-4"
                 data={temperature}
                 index="time"
                 categories={["temperature"]}
-                colors={["blue"]}
+                colors={["purple"]}
                 yAxisWidth={30}
               />
             </Card>
@@ -381,12 +381,12 @@ export default function Home() {
           </TabsContent>
           <TabsContent value="humidity">
             <Card className="mx-auto w-[97%] md:w-full">
-              <LineChart
-                className="h-56 md:h-72 mt-4"
+              <AreaChart
+                className="h-72 mt-4"
                 data={humidity}
                 index="time"
                 categories={["percentage"]}
-                colors={["blue"]}
+                colors={["purple"]}
                 yAxisWidth={30}
               />
             </Card>
