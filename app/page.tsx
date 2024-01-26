@@ -14,87 +14,54 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { ArrowBottomLeftIcon, ArrowBottomRightIcon, ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowTopLeftIcon, ArrowTopRightIcon, ArrowUpIcon } from "@radix-ui/react-icons";
+import { ArrowBottomLeftIcon, ArrowBottomRightIcon, ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowTopLeftIcon, ArrowTopRightIcon, ArrowUpIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import OverviewComponent from "@/components/OverviewComponent";
 import { useTheme } from "next-themes"
 import { generateImage } from "@/lib/openai";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
-
+import { Skeleton } from "@/components/ui/skeleton";
+import { getWeatherData, getForecastData } from "./features/weather/weatherSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 
 export default function Home() {
   const { setTheme } = useTheme()
-  const [weather, setWeather] = useState(null);
-  const [forecastData, setForecastData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [city, setCity] = useState("Harare");
+  const dispatch = useDispatch();
+
+  const [city, setCity] = useState("");
   const [imageURL, setImageURL] = useState("");
 
-  async function getWeather(e: any) {
-    e.preventDefault();
-    setLoading(true);
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
-    const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
-    axios.get(url).then((response) => {
-      setWeather(response.data)
-      console.log(response.data)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response.data)
-      }
-    })
-    axios.get(forecastURL).then((response) => {
-      setForecastData(response.data)
-      console.log(response.data)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response.data)
-      }
-    })
+  const { weather, forecastData, loading } = useSelector((state: any) => state.weather);
 
+  async function getImageUrl() {
     const time = weather?.weather[0].icon.split("").slice(2);
     const conditions = weather?.weather[0].description;
     const location = city;
-
-    setImageURL(await generateImage(time, conditions, location));
-    setLoading(false);
-  }
-
-  async function getInitialWeather() {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
-    const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
-
-    setLoading(true);
-    axios.get(url).then((response) => {
-      setWeather(response.data)
-      console.log(response.data)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response.data)
-      }
-    })
-    axios.get(forecastURL).then((response) => {
-      setForecastData(response.data)
-      console.log(response.data)
-    }).catch((error) => {
-      if (error.response) {
-        console.log(error.response.data)
-      }
-    })
-    const time = weather?.weather[0].icon.split("").slice(2);
-    const conditions = weather?.weather[0].description;
-    const location = city;
-    const image = await generateImage(time, conditions, location);
-    setImageURL(image);
-    setLoading(false);
-  }
+    const imageURL = await generateImage(time, conditions, location);
+    setImageURL(imageURL);
+  };
 
   useEffect(() => {
-    getInitialWeather()
+    dispatch(getWeatherData("Harare"));
+    dispatch(getForecastData("Harare"));
+    getImageUrl();
+
   }, []);
+
+  console.log(forecastData);
+
+
+  async function getWeather() {
+    dispatch(getWeatherData(city));
+    const time = weather?.weather[0].icon.split("").slice(2);
+    const conditions = weather?.weather[0].description;
+    const location = city;
+    const imageURL = await generateImage(time, conditions, location);
+    setImageURL(imageURL);
+
+  }
 
   const date = new Date();
   let day = date.getDay().toString();
@@ -248,15 +215,10 @@ export default function Home() {
     },
   ];
 
-  if (loading === true || weather === null || forecastData === null || imageURL === null) {
+  if (loading === true || weather.weather[0].main === null || forecastData.message === null || imageURL === "") {
     return (
       <LoadingSkeleton />
     )
-  }
-  if (weather.weather[0].icon.split("").slice(2) === "d") {
-    setTheme("light")
-  } else if (weather.weather[0].icon.split("").slice(2) === "n") {
-    setTheme("dark")
   }
   return (
     <div className="flex flex-col justify-center items-center w-screen">
@@ -270,21 +232,47 @@ export default function Home() {
           className="w-[300px]"
           onChange={(e) => setCity(e.target.value)}
         />
-        <Button
-          type="submit"
-          onClick={getWeather}
-          variant="default"
-          className="mt-[10px]"
-        >Search</Button>
+        <div className="flex flex-row space-x-2 items-center mt-[10px]">
+          <Button
+            type="submit"
+            onClick={getWeather}
+            variant="default"
+          >Search</Button>
+          <div>
+            <Button
+              onClick={() => setTheme("dark")}
+              variant="outline"
+              size="icon"
+              className="block dark:hidden"
+            >
+              <SunIcon
+                className="h-[1.2rem] w-[1.2rem] m-auto"
+              />
+            </Button>
+            <Button
+              onClick={() => setTheme("light")}
+              variant="outline"
+              size="icon"
+              className="relative top-0 hidden dark:block"
+            >
+              <MoonIcon
+                className="h-[1.2rem] w-[1.2rem] m-auto"
+              />
+            </Button>
+          </div>
+        </div>
       </form>
       <div className="w-screen h-content relative overflow-x-hidden pb-5">
-        <Image
-          src={imageURL}
-          alt={`weather description`}
-          width={1024}
-          height={1024}
-          className="absolute w-full h-[200px] md:h-full -z-10 object-cover"
-        />
+        {imageURL === "" ?
+          <Skeleton className="w-full h-52 md:h-full" /> :
+          <Image
+            src={imageURL}
+            alt={`weather description`}
+            width={1024}
+            height={1024}
+            className="absolute w-full h-[200px] md:h-full -z-10 object-cover"
+          />
+        }
         <div className="flex justify-between w-full md:w-10/12 mx-auto">
           <div className="flex flex-row justify-between items-end md:items-start mt-[30px] px-3 pb-14 md:p-7 rounded-md w-full md:w-[380px] lg:w-[410px] h-[150px] md:h-[260px] backdrop-blur-sm">
             <div>
@@ -329,7 +317,7 @@ export default function Home() {
           </div>
         </div>
         <Tabs defaultValue="overview" className="w-full md:w-10/12 mx-auto bg-transparent backdrop-blur-sm mt-5">
-          <TabsList className="mb-[20px] md:mb-[0] bg-transparent backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4 text-neutral-200">
+          <TabsList className="mb-[20px] md:mb-[0] bg-transparent backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4">
             <TabsTrigger value="overview" className="text-xs md:text-lg">Overview</TabsTrigger>
             <TabsTrigger value="temperature" className="text-xs md:text-lg">Temperature</TabsTrigger>
             <TabsTrigger value="humidity" className="text-xs md:text-lg">Humidity</TabsTrigger>

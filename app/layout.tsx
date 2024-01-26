@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider";
+import ReduxProvider from "@/components/Redux-Provider";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -24,11 +25,13 @@ export default function RootLayout({
       <body className={` ${poppins.className}`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <ReduxProvider>
+            {children}
+          </ReduxProvider>
         </ThemeProvider>
       </body>
     </html>
