@@ -12,7 +12,7 @@ export async function generateImage(
 ) {
   try {
     const response = await openai.createImage({
-      prompt: `a beautiful landscape ${
+      prompt: `a beautiful landscape in ${location} ${
         time === "n" && "at night"
       } with ${conditions}`,
       n: 1,
