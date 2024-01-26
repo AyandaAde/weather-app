@@ -48,27 +48,20 @@ export default function Home() {
       const { latitude, longitude } = pos.coords;
       console.log(latitude, longitude);
       const resp = await axios(`http://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-      const currentCity = resp.data;
-      console.log(currentCity.address.city)
-      setCity(currentCity.address.city);
-      dispatch(getWeatherData(currentCity.address.city));
-      dispatch(getForecastData(currentCity.address.city));
+      const currentLocation = resp.data;
+      console.log(currentLocation);
+      setCity(currentLocation.address.city);
+      dispatch(getWeatherData(currentLocation.address.city));
+      dispatch(getForecastData(currentLocation.address.city));
     })
 
     getImageUrl();
 
   }, []);
 
-  console.log(forecastData);
-
-
   async function getWeather() {
     dispatch(getWeatherData(city));
-    const time = weather?.weather[0].icon.split("").slice(2);
-    const conditions = weather?.weather[0].description;
-    const location = city;
-    const imageURL = await generateImage(time, conditions, location);
-    setImageURL(imageURL);
+    getImageUrl();
 
   }
 
@@ -90,7 +83,8 @@ export default function Home() {
     day = "Saturday"
   } else {
     day = "Sunday"
-  }
+  };
+
   const temperature = [
     {
       time: forecastData?.list[0].dt_txt.split(" ").slice(1),
