@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`bg-neutral-800 ${poppins.className}`}>
+      <body className={` ${poppins.className}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

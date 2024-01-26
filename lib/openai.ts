@@ -5,11 +5,16 @@ const config = new Configuration({
 });
 const openai = new OpenAIApi(config);
 
-export async function generateImage() {
+export async function generateImage(
+  time: string,
+  conditions: string,
+  location: string
+) {
   try {
     const response = await openai.createImage({
-      prompt:
-        "A beautiful, landscape during the day with partly cloudy weather conditions. The scene features twinkling lights from cozy cottages, a pond with people watching the fish, and beautiful trees.",
+      prompt: `a beautiful landscape ${
+        time === "n" && "at night"
+      } with ${conditions}`,
       n: 1,
       size: "1024x1024",
     });
