@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { LineChart, AreaChart } from "@tremor/react";
+import { AreaChart } from "@tremor/react";
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Carousel,
@@ -269,7 +269,7 @@ export default function Home() {
           <Skeleton className="w-full h-52 md:h-full" /> :
           <Image
             src={imageURL}
-            alt={`weather description`}
+            alt={`weather depiction`}
             width={1024}
             height={1024}
             className="absolute w-full h-[200px] md:h-full -z-10 object-cover"
@@ -288,7 +288,7 @@ export default function Home() {
                 <Image
 
                   src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
-                  alt={`icon depicting the weather conditions of (city name goes here)`}
+                  alt={`icon depicting the current weather conditions in ${weather.name}`}
                   width={1024}
                   height={1024}
                   className="h-[36px] w-[36px] md:h-[75px] md:w-[75px]"
@@ -320,10 +320,10 @@ export default function Home() {
         </div>
         <Tabs defaultValue="overview" className="w-full md:w-10/12 mx-auto bg-transparent backdrop-blur-sm mt-5">
           <TabsList className="mb-[20px] md:mb-[0] bg-transparent backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4">
-            <TabsTrigger value="overview" className="text-xs md:text-lg">Overview</TabsTrigger>
-            <TabsTrigger value="temperature" className="text-xs md:text-lg">Temperature</TabsTrigger>
-            <TabsTrigger value="humidity" className="text-xs md:text-lg">Humidity</TabsTrigger>
-            <TabsTrigger value="wind" className="text-xs md:text-lg">Wind</TabsTrigger>
+            <TabsTrigger value="overview" className="text-sm md:text-lg">Overview</TabsTrigger>
+            <TabsTrigger value="temperature" className="text-sm md:text-lg">Temperature</TabsTrigger>
+            <TabsTrigger value="humidity" className="text-sm md:text-lg">Humidity</TabsTrigger>
+            <TabsTrigger value="wind" className="text-sm md:text-lg">Wind</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="text-black">
             <OverviewComponent data={forecastData} />
