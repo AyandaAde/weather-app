@@ -319,7 +319,7 @@ export default function Home() {
           </div>
         </div>
         <Tabs defaultValue="overview" className="w-full md:w-10/12 mx-auto bg-transparent backdrop-blur-sm mt-5">
-          <TabsList className="mb-[20px] md:mb-[0] bg-transparent backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4">
+          <TabsList className="mt-[10px] mb-[20px] md:mb-[0] bg-transparent backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4">
             <TabsTrigger value="overview" className="text-sm md:text-lg">Overview</TabsTrigger>
             <TabsTrigger value="temperature" className="text-sm md:text-lg">Temperature</TabsTrigger>
             <TabsTrigger value="humidity" className="text-sm md:text-lg">Humidity</TabsTrigger>
