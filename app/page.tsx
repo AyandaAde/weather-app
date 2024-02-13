@@ -34,6 +34,11 @@ export default function Home() {
   const [imageURL, setImageURL] = useState("");
   const { weather, forecastData, loading } = useSelector((state: any) => state.weather);
 
+  const date = new Date();
+  let day = date.getDay().toString();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
   async function getImageUrl() {
     const time = weather?.weather[0].icon.split("").slice(2);
     const conditions = weather?.weather[0].description;
@@ -41,6 +46,7 @@ export default function Home() {
     const imageURL = await generateImage(time, conditions, location);
     setImageURL(imageURL);
   };
+
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -63,10 +69,6 @@ export default function Home() {
     getImageUrl();
 
   }
-
-  const date = new Date();
-  let day = date.getDay().toString();
-  const time = date.getHours();
 
   if (day === "1") {
     day = "Monday";
@@ -313,13 +315,13 @@ export default function Home() {
           </div>
           <div className="hidden md:block mt-[30px] p-7 backdrop-blur-sm rounded-md text-right space-y-2">
             <h2 className="text-3xl md:text-5xl font-semibold">Weather</h2>
-            <h3 className="text-lg md:text-xl">{day + " " + time + ":00"}</h3>
+            <h3 className="text-lg md:text-xl">{day + " " + hours + ":" + minutes}</h3>
             <h3 className="text-lg md:text-xl">{
               weather.weather[0].description}</h3>
           </div>
         </div>
         <Tabs defaultValue="overview" className="w-full md:w-10/12 mx-auto bg-transparent backdrop-blur-sm mt-5">
-          <TabsList className="mt-[10px] mb-[20px] md:mb-[0] bg-transparent backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4">
+          <TabsList className="mt-[10px] mb-[20px] md:mb-[0] text-white dark:text-black bg-black dark:bg-white h-fit pb-1 backdrop-blur-sm w-full grid grid-cols-3 sm:grid-cols-4">
             <TabsTrigger value="overview" className="text-sm md:text-lg">Overview</TabsTrigger>
             <TabsTrigger value="temperature" className="text-sm md:text-lg">Temperature</TabsTrigger>
             <TabsTrigger value="humidity" className="text-sm md:text-lg">Humidity</TabsTrigger>

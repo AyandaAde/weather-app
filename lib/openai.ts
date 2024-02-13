@@ -19,6 +19,7 @@ export async function generateImage(
       size: "1024x1024",
     });
     const data = await response.json();
+    console.log(data);
     const image_url = data.data[0].url;
     return image_url as string;
   } catch (error) {
