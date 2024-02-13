@@ -340,6 +340,10 @@ export default function Home() {
                 </FormItem>
               )}
             />
+            <Button
+              type="submit"
+              variant="default"
+            >Search</Button>
             <div>
               <Button
                 onClick={() => setTheme("dark")}
@@ -363,10 +367,6 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <Button
-            type="submit"
-            variant="default"
-          >Search</Button>
         </form>
       </Form>
       <div className="w-screen h-content relative overflow-x-hidden pb-5">
@@ -409,7 +409,7 @@ export default function Home() {
                 Feels like temp {
                   weather.main.feels_like}{
                   units === "standard" ?
-                    "K"
+                    " K"
                     : units === "metric" ?
                       "°C"
                       : units === "imperial" &&
@@ -428,9 +428,9 @@ export default function Home() {
                 weather.wind.speed
               }{
                   units === "standard" || units === "metric" ?
-                    "m/s"
+                    " m/s"
                     : units === "imperial" &&
-                    "m/h"
+                    " m/h"
                 }</p>
             </div>
           </div>
@@ -454,7 +454,7 @@ export default function Home() {
             <TabsTrigger value="wind" className="text-sm md:text-lg">Wind</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="text-black">
-            <OverviewComponent data={forecastData} />
+            <OverviewComponent units={units} data={forecastData} />
           </TabsContent>
           <TabsContent value="temperature">
             <Card className="mx-auto w-[97%] md:w-full">
@@ -467,7 +467,7 @@ export default function Home() {
                 yAxisWidth={30}
               />
             </Card>
-            <OverviewComponent data={forecastData} />
+            <OverviewComponent units={units} data={forecastData} />
           </TabsContent>
           <TabsContent value="wind">
             <Carousel
@@ -485,9 +485,9 @@ export default function Home() {
                           <CardContent className="flex flex-col aspect-square items-center justify-center p-6 bg-transparent gap-y-3">
                             <h3>{item.wind.speed}{
                               units === "standard" || units === "metric" ?
-                                "m/s"
+                                " m/s"
                                 : units === "imperial" &&
-                                "m/h"
+                                " m/h"
                             }</h3>
                             {item.wind.deg === 360 || item.wind.deg <= 44 ? <ArrowUpIcon />
                               : item.wind.deg <= 89 ? <ArrowTopRightIcon />
@@ -510,7 +510,7 @@ export default function Home() {
                 <CarouselNext />
               </div>
             </Carousel>
-            <OverviewComponent data={forecastData} />
+            <OverviewComponent units={units} data={forecastData} />
           </TabsContent>
           <TabsContent value="humidity">
             <Card className="mx-auto w-[97%] md:w-full">
@@ -523,7 +523,7 @@ export default function Home() {
                 yAxisWidth={30}
               />
             </Card>
-            <OverviewComponent data={forecastData} />
+            <OverviewComponent units={units} data={forecastData} />
           </TabsContent>
         </Tabs>
       </div >

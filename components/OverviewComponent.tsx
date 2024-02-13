@@ -3,7 +3,12 @@ import { Card, CardContent } from "./ui/card"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel"
 
 
-const OverviewComponent = ({ data }: any) => {
+type Props = {
+    data: any,
+    units: string,
+}
+
+const OverviewComponent = ({ data, units }: Props) => {
     return (
         <Carousel
             opts={{
@@ -26,7 +31,21 @@ const OverviewComponent = ({ data }: any) => {
                                             height={1024}
                                             className="h-[36px] w-[36px] md:h-[75px] md:w-[75px]"
                                         />
-                                        <p>{item.main.temp}°C/{item.main.feels_like}°C</p>
+                                        <p>{item.main.temp}{
+                                            units === "standard" ?
+                                                " K"
+                                                : units === "metric" ?
+                                                    "°C"
+                                                    : units === "imperial" &&
+                                                    "°F"
+                                        }/{item.main.feels_like}{
+                                                units === "standard" ?
+                                                    " K"
+                                                    : units === "metric" ?
+                                                        "°C"
+                                                        : units === "imperial" &&
+                                                        "°F"
+                                            }</p>
                                     </CardContent>
                                 </Card>
                             </div>
