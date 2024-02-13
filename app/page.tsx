@@ -14,8 +14,28 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+// import { toast } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowBottomLeftIcon, ArrowBottomRightIcon, ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowTopLeftIcon, ArrowTopRightIcon, ArrowUpIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import OverviewComponent from "@/components/OverviewComponent";
 import { useTheme } from "next-themes"
@@ -26,27 +46,75 @@ import { getWeatherData, getForecastData } from "./features/weather/weatherSlice
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
+const FormSchema = z.object({
+  city: z
+    .string(),
+  units: z.string(),
+});
+
 export default function Home() {
   const { setTheme } = useTheme()
   const dispatch = useDispatch();
 
   const [city, setCity] = useState("");
+  const [units, setUnits] = useState("metric");
   const [imageURL, setImageURL] = useState("");
+  const [enabled, setEnabled] = useState(false);
   const { weather, forecastData, loading } = useSelector((state: any) => state.weather);
-
+  let weatherData = useRef({
+    city,
+    units,
+  });
   const date = new Date();
   let day = date.getDay().toString();
   const hours = date.getHours();
   const minutes = date.getMinutes();
 
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      city: weatherData.current.city,
+      units: weatherData.current.units,
+    }
+  });
+
   async function getImageUrl() {
     const time = weather?.weather[0].icon.split("").slice(2);
     const conditions = weather?.weather[0].description;
-    const location = city;
+    const location = weatherData.current.city;
     const imageURL = await generateImage(time, conditions, location);
     setImageURL(imageURL);
   };
 
+  function onSubmit(data: z.infer<typeof FormSchema>) {
+
+    if (data.units !== weatherData.current.units && data.city !== "") {
+      setUnits(data.units);
+      weatherData.current = {
+        city: data.city,
+        units: data.units,
+      }
+    } else if (data.units !== weatherData.current.units && data.city === "") {
+      setUnits(data.units);
+      weatherData.current = {
+        city: weatherData.current.city,
+        units: data.units,
+      }
+    } else if (data.units === weatherData.current.units && data.city !== "") {
+      weatherData.current = {
+        city: data.city,
+        units: weatherData.current.units,
+      }
+    }
+    //  else {
+    //   toast("Please enter a city name or select units.")
+    // };
+    setEnabled(false);
+    console.log(weatherData.current);
+    dispatch(getWeatherData(weatherData.current));
+    dispatch(getForecastData(weatherData.current));
+    getImageUrl();
+  };
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -54,21 +122,27 @@ export default function Home() {
       console.log(latitude, longitude);
       const resp = await axios(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
       const currentLocation = resp.data;
+      setUnits("metric");
+      weatherData.current = {
+        city: currentLocation.address.city,
+        units,
+      };
+      console.log(weatherData.current);
       console.log(currentLocation);
-      setCity(currentLocation.address.city);
-      dispatch(getWeatherData(currentLocation.address.city));
-      dispatch(getForecastData(currentLocation.address.city));
+      dispatch(getWeatherData(weatherData.current));
+      dispatch(getForecastData(weatherData.current));
     })
 
     getImageUrl();
 
   }, []);
 
-  async function getWeather() {
-    dispatch(getWeatherData(city));
-    getImageUrl();
+  // async function getWeather() {
+  //   dispatch(getWeatherData(weatherData));
+  //   dispatch(getForecastData(weatherData));
+  //   getImageUrl();
 
-  }
+  // }
 
   if (day === "1") {
     day = "Monday";
@@ -227,45 +301,74 @@ export default function Home() {
   return (
     <div className="flex flex-col justify-center items-center w-screen">
       <h1 className="text-center font-semibold text-3xl mt-[10px]">Nimbus Navigator</h1>
-      <form onSubmit={getWeather} className="mt-[5px] mb-[10px]">
-        <Label htmlFor="city name">Type in a city name.</Label>
-        <Input
-          type="text"
-          name="city"
-          placeholder={weather.name}
-          className="w-[300px]"
-          onChange={(e) => setCity(e.target.value)}
-        />
-        <div className="flex flex-row space-x-2 items-center mt-[10px]">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-[5px] mb-[10px] space-y-1">
+          <Label htmlFor="city name">Type in a city name.</Label>
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <Input
+                  type="text"
+                  name="city"
+                  placeholder={weather.name}
+                  className="w-[300px]"
+                  onChange={field.onChange}
+                />
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-row space-x-2 items-center mt-[10px]">
+            <FormField
+              control={form.control}
+              name="units"
+              render={({ field }) => (
+                <FormItem>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Units" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="standard">standard</SelectItem>
+                      <SelectItem value="metric">metric</SelectItem>
+                      <SelectItem value="imperial">imperial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <div>
+              <Button
+                onClick={() => setTheme("dark")}
+                variant="outline"
+                size="icon"
+                className="block dark:hidden"
+              >
+                <SunIcon
+                  className="h-[1.2rem] w-[1.2rem] m-auto"
+                />
+              </Button>
+              <Button
+                onClick={() => setTheme("light")}
+                variant="outline"
+                size="icon"
+                className="relative top-0 hidden dark:block"
+              >
+                <MoonIcon
+                  className="h-[1.2rem] w-[1.2rem] m-auto"
+                />
+              </Button>
+            </div>
+          </div>
           <Button
             type="submit"
-            onClick={getWeather}
             variant="default"
           >Search</Button>
-          <div>
-            <Button
-              onClick={() => setTheme("dark")}
-              variant="outline"
-              size="icon"
-              className="block dark:hidden"
-            >
-              <SunIcon
-                className="h-[1.2rem] w-[1.2rem] m-auto"
-              />
-            </Button>
-            <Button
-              onClick={() => setTheme("light")}
-              variant="outline"
-              size="icon"
-              className="relative top-0 hidden dark:block"
-            >
-              <MoonIcon
-                className="h-[1.2rem] w-[1.2rem] m-auto"
-              />
-            </Button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </Form>
       <div className="w-screen h-content relative overflow-x-hidden pb-5">
         {imageURL === "" ?
           <Skeleton className="w-full h-52 md:h-full" /> :
@@ -285,10 +388,16 @@ export default function Home() {
                 <h3 className="font-semibold text-3xl mr-[0] md:mr-[20px]">
                   {
                     weather.main.temp
-                  }°C
+                  }{
+                    units === "standard" ?
+                      " K"
+                      : units === "metric" ?
+                        "°C"
+                        : units === "imperial" &&
+                        "°F"
+                  }
                 </h3>
                 <Image
-
                   src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`}
                   alt={`icon depicting the current weather conditions in ${weather.name}`}
                   width={1024}
@@ -298,7 +407,14 @@ export default function Home() {
               </div>
               <h3 className="text-sm">
                 Feels like temp {
-                  weather.main.feels_like}°C</h3>
+                  weather.main.feels_like}{
+                  units === "standard" ?
+                    "K"
+                    : units === "metric" ?
+                      "°C"
+                      : units === "imperial" &&
+                      "°F"
+                }</h3>
             </div>
             <Separator orientation="vertical" className="mx-[10px] hidden md:block" />
             <div className="text-xs md:text-base text-right">
@@ -310,12 +426,22 @@ export default function Home() {
                 weather.main.humidity}%</p>
               <p>Wind: {
                 weather.wind.speed
-              } m/s</p>
+              }{
+                  units === "standard" || units === "metric" ?
+                    "m/s"
+                    : units === "imperial" &&
+                    "m/h"
+                }</p>
             </div>
           </div>
           <div className="hidden md:block mt-[30px] p-7 backdrop-blur-sm rounded-md text-right space-y-2">
             <h2 className="text-3xl md:text-5xl font-semibold">Weather</h2>
-            <h3 className="text-lg md:text-xl">{day + " " + hours + ":" + minutes}</h3>
+            <h3 className="text-lg md:text-xl">{day + " " + hours + ":"}{
+              minutes < 10 ? (
+                "0" + minutes
+              )
+                : minutes
+            }</h3>
             <h3 className="text-lg md:text-xl">{
               weather.weather[0].description}</h3>
           </div>
@@ -357,7 +483,12 @@ export default function Home() {
                       <div className="p-1">
                         <Card>
                           <CardContent className="flex flex-col aspect-square items-center justify-center p-6 bg-transparent gap-y-3">
-                            <h3>{item.wind.speed} m/s</h3>
+                            <h3>{item.wind.speed}{
+                              units === "standard" || units === "metric" ?
+                                "m/s"
+                                : units === "imperial" &&
+                                "m/h"
+                            }</h3>
                             {item.wind.deg === 360 || item.wind.deg <= 44 ? <ArrowUpIcon />
                               : item.wind.deg <= 89 ? <ArrowTopRightIcon />
                                 : item.wind.deg <= 134 ? <ArrowRightIcon />

@@ -8,14 +8,17 @@ import axios from "axios";
 const initialState = {
   weather: weatherData,
   forecastData: forecastData,
+  units: "metric",
   loading: false,
   error: false,
 };
 
 export const getWeatherData = createAsyncThunk(
   "weather/getWeatherData",
-  async (city, thunkAPI) => {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
+  async (weatherData: { city: string; units: string }, thunkAPI) => {
+    const { city, units } = weatherData;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=${units}`;
+    console.log(url);
     try {
       const resp = await axios(url);
       console.log(resp.data);
@@ -29,8 +32,9 @@ export const getWeatherData = createAsyncThunk(
 
 export const getForecastData = createAsyncThunk(
   "weather/getforecastData",
-  async (city, thunkAPI) => {
-    const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=metric`;
+  async (weatherData: { city: string; units: string }, thunkAPI) => {
+    const { city, units } = weatherData;
+    const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY}&units=${units}`;
     try {
       const resp = await axios(forecastURL);
       console.log(resp.data);
